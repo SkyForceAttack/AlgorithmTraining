@@ -1,0 +1,94 @@
+Question 1:
+原题
+　　Say you have an array for which the ith element is the price of a given stock on day i. 
+　　If you were only permitted to complete at most one transaction (ie, buy one and sell one share of the stock),
+  design an algorithm to find the maximum profit. 
+题目大意
+　　给一个数组prices[]，prices[i]代表股票在第i天的售价，求出只做一次交易(一次买入和卖出)能得到的最大收益。  
+分析：
+    对于每一个price，在当天卖出所能得到的最大收益为：
+    0，                    curPrice < minPrice
+    curPrice - minPrice,   curPrice > minPrice
+    
+    curProfit = curPrice > minPrice ? curPrice - minPrice : 0;
+    minPrice = min(curPrice, minPrice);
+    maxProfit = max(maxProfit, curProfit);
+解：
+    int maxProfit(vector<int> prices) {
+        int n = prices.size();
+        if (n < 2) return 0;
+        int minPrice = prices[0];
+        int curProfit = 0;
+        int maxProfit = 0;
+        for (auto price : prices) {
+            if (price < minPrice) {
+                minPrice = price;
+            } else {
+                curProfit = price - minPrice;
+                maxProfit = max(maxProfit, curProfit);
+            }
+        }
+        return maxProfit;
+    }
+    
+ Question 2:
+ 原题:
+    Say you have an array for which the ith element is the price of a given stock on day i. 
+　　You can trade as many times as you can, design an algorithm to find the maximum profit. 
+ 题目大意:
+　　给一个数组prices[]，prices[i]代表股票在第i天的售价，不限制交易次数，求最大收益。 
+ 分析：
+     只要某一天的price比前一天低，就能获得收益，累积收益就是最大收益
+ 解:
+     int maxProfit(vector<int> prices) {
+         int profit;
+         int n = prices.size();
+         if (n < 2) return 0;
+         for (int i = 1; i != n; ++i) {
+             if (prices[i] > prices[i-1])
+                 profit += prices[i] - prices[i-1];
+         }
+         return profit;
+     }
+   
+ Question 3:
+    Say you have an array for which the ith element is the price of a given stock on day i. 
+　　If you were only permitted to complete at most twice transactions, design an algorithm to find the maximum profit. 
+ 题目大意
+　　给一个数组prices[]，prices[i]代表股票在第i天的售价，求出只做两次交易能得到的最大收益。     
+ 分析
+    跟题目1是类似的解法，不够将两次交易分为两部分：当天之前的交易能获得的最大收益 和 当天之后的交易所能获得的最大收益，
+    遍历每一天，对于两次交易之和，求其最大值，就是最大收益。
+ 解：
+    int maxProfit(vector<int> prices) {
+        int n = prices.size();
+        if (n < 2) return 0;
+        vector<int> beforeProfits(n, 0);
+        vector<int> afterProfits(n, 0);
+        int minPrice = prices[0];
+        for (int i = 1; i != n; ++i) {
+            if (prices[i] < minPrice)
+                minPrice = prices[i];
+            else {
+                beforeProfits[i] = max(beforeProfits[i-1], prices[i] - minPrice);
+            }
+        }
+        int maxPrice = prices[n-1];
+        for (int i = n - 2; i >= 0; --i) {
+            if (prices[i] > maxPrice)
+                maxPrice = prices[i];
+            else {
+                afterProfits[i] = max(afterProfits[i+1], maxPrice - prices[i]);
+            }
+        }
+        
+        int maxProfit = 0;
+        for (int i = 0; i != n; ++i) {
+            maxProfit = max(maxProfit, beforeProfits[i] + afterProfits[i]);
+        }
+        
+        return maxProfit;
+    }
+      
+      
+ 
