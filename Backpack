@@ -1,0 +1,126 @@
+Backpack problem series
+
+Problem 1:
+0/1 backpack problem
+There are serial of products in the shop, each product has a size and value, you have a car can put V size things into it,
+how much value can you get, each product can pick only once?
+
+classic dynamic problem
+status: dp[i][j] means sub problem from product 0 ~ product i, Size from 0 ~ j, the biggest value you can get
+status transfrom equation:
+dp[i][j] = max(dp[i-1][j], dp[i-1][j-cost[i]] + values[i]);  // dp[i-1][j] means we don't pick the current product i
+
+solution
+int backpack01(vector<int> &costs, vector<int> &values, int V) {
+    int n = costs.size();
+    vector<vector<int>> dp(n+1, vector<int>(V+1, 0));
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= V; ++j) {
+            if (j < costs[i-1]) {
+                dp[i][j] = dp[i-1][j];
+            } else {
+                dp[i][j] = max(dp[i-1][j], dp[i-1][j-costs[i-1]]+values[i-1]);
+            }
+        }
+    }
+    return dp[n][V];
+}
+
+optimization:
+bacause of the dp[i][j] is only related to dp[i-1][j-...], so the space complex can be reduced.
+dp[j] = max(dp[j-costs[i]] + values[i], dp[j]); j from V to costs[i] in order to keep the previous sub problem result.
+
+int backpack01Opt(vector<int> &costs, vector<int> &values, int V) {
+    int n = costs.size();
+    vector<int> dp(V+1, 0);
+    for (int i = 0; i < n; ++i) {
+        for (int j = V; j >= costs[i]; --j) {
+            dp[j] = max(dp[j], dp[j-costs[i]]+values[i]);
+        }
+    }
+    return dp[V];
+}
+
+Problem 2:
+infinit backpack problem
+There are serial of products in the shop, each product has a size and value, you have a car can put V size things into it,
+how much value can you get, each product can pick as many as possible?
+
+classic dynamic problem
+status: dp[i][j] means sub problem from product 0 ~ product i, Size from 0 ~ j, the biggest value you can get
+status transfrom equation:
+dp[i][j] = max: dp[i-1][j - k * costs[i]] + k * values[i];  // k = [0, j / costs[i]] which means j - k * costs[i] >= 0
+solution
+int backpackInf(vector<int> &costs, vector<int> &values, int V) {
+    int n = costs.size();
+    vector<vector<int>> dp(n+1, vector<int>(V+1, 0));
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= V; ++j) {
+            for (int k = 0; k < j / costs[i-1]; ++k) {
+                dp[i][j] = max(dp[i][j], dp[i-1][j-k*costs[i-1]]+k*values[i-1]);
+            }
+        }
+    }
+    return dp[n][V];
+}
+
+optimization:
+bacause of the dp[i][j] is only related to dp[i-1][j-...], so the space complex can be reduced.
+dp[j] = max(dp[j-costs[i]] + values[i], dp[j]); j from costs[i] to V in order to keep the previous sub problem result.
+
+int backpackInfOpt(vector<int> &costs, vector<int> &values, int V) {
+    int n = costs.size();
+    vector<int> dp(V+1, 0);
+    for (int i = 0; i < n; ++i) {
+        for (int j = costs[i]; j <= V; ++j) {
+            dp[j] = max(dp[j], dp[j-costs[i]]+values[i]);
+        }
+    }
+    return dp[V];
+}
+
+Problem 3:
+two dimension backpack problem
+There are serial of products in the shop, each product has 2 dimension size: sizeX, sizeY and value, 
+you have a car can put size M * N things into it, how much value can you get, each product can pick only once?
+
+status: dp[i][j][k] means sub problem from product 0 ~ product i, SizeX from 0 ~ j, sizeY from 0 ~ k the biggest value you can get
+status transfrom equation:
+dp[i][j][k] = max(dp[i-1][j][k], dp[i-1][j-costsX[i]][k-costsY[i]] + values[i]);  // dp[i-1][j][k] means don't pick current product i
+
+solution
+int backpack2D(vector<int> &costsX, vector<int> &costsY, vector<int> &values, int M, int N) {
+    int n = costsX.size();
+    vector<vector<vector<int>>> dp(n+1, vector<vector<int>>(M+1, vector<int>(N+1, 0)));
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= M; ++j) {
+            for (int k = 1; k <= N; ++k) {
+                if (j < costsX[i-1] || k < costsY[i-1]) {
+                    dp[i][j][k] = dp[i-1][j][k];
+                } else {
+                    dp[i][j] = max(dp[i-1][j], dp[i-1][j-costsX[i-1]][k-costsY[i-1]]+values[i-1]);
+                }
+            }
+        }
+    }
+    return dp[n][M][N];
+}
+
+optimization:
+bacause of the dp[i][j][k] is only related to dp[i-1][j-...][k-..], so the space complex can be reduced.
+dp[j][k] = max(dp[j-costsX[i]][k-costsY[i]] + values[i], dp[j]); j, k from M, N to costsX[i], costsY[i].
+
+int backpack2DOpt(vector<int> &costsX, vector<int> &costsY, vector<int> &values, int M, int N) {
+    int n = costsX.size();
+    vector<vector<int>> dp(M+1, vector<int>(N+1, 0));
+    for (int i = 0; i < n; ++i) {
+        for (int j = M; j >= costsX[i]; --j) {
+            for (int k = N; k >= costsY[i]; --k) {
+                dp[j][k] = max(dp[j][k], dp[j-costsX[i]][k-costsY[i]]+values[i]);
+            }
+        }
+    }
+    return dp[M][N];
+}
+
+to be continued...
